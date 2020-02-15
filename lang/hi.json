@@ -1,4 +1,9 @@
 {
   "first_string": "यह पहला संदेश है",
-  "second_string": "यह पहला संदेश है"
+  "second_string": "यह पहला संदेश है",
+  "name" : "नाम",
+  "father's name": "पिता का नाम",
+  "Adhar Number": "अधार नंबर",
+  "Mobile Number": "मोबाइल नंबर",
+  "Mobile Number2": "मोबाइल नंबर 2"
 }

@@ -1,4 +1,9 @@
 {
   "first_string": "This is first messsge.",
-  "second_string": "This is a tutorial"
+  "second_string": "This is a tutorial",
+  "name" : "Name",
+  "father's name": "Father's Name",
+  "Adhar Number": "Adhar Number",
+  "Mobile Number": "Mobile Number",
+  "Mobile Number2": "Mobile Number2"
 }

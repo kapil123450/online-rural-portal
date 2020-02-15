@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
           ],
-          home: AppLang(),
+          home: InputForm(),
         );
       }),
     );
