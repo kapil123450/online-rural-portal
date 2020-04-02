@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-
+import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_app/screens/AppLanguage.dart';
+import 'package:flutter_app/screens/form2.dart';
 
 class InputForm extends StatefulWidget {
   @override
@@ -13,7 +14,11 @@ class InputForm extends StatefulWidget {
 }
 
 class InputFormState extends State<InputForm> {
+  Geolocator geolocator = Geolocator();
+  Position userLocation;
+  String postalcode ;
   TextEditingController nameController = TextEditingController(text: 'xyz');
+  TextEditingController pincodeController= TextEditingController();
   TextEditingController numberController =
       TextEditingController(text: '8264959487');
   TextEditingController fathernameController =
@@ -24,11 +29,41 @@ class InputFormState extends State<InputForm> {
   bool validate_fatherName = false;
   bool validate_number = false;
   bool validate_adharnumber = false;
+  bool validate_pc = true;
   Locale locale;
-  
-
-  
-
+  SharedPreferences prefs;
+ /*  addStringToSF(phone) async {
+  print(phone);
+  prefs = await SharedPreferences.getInstance();
+  prefs.setString('stringValue', phone);
+  } */
+  Future<String> _getLocation() async {
+    print("1..Inside location fn");
+    Position currentLocation;
+    try {
+      currentLocation = await geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.best);
+    } catch (e) {
+      print(e);
+      print("error");
+      currentLocation = null;
+    }
+    print("2...$currentLocation");
+    List<Placemark> placemark = await Geolocator().placemarkFromPosition(currentLocation);
+    print(placemark);
+    print(placemark[0].postalCode);
+    return placemark[0].postalCode.toString();
+  }
+  storeData(BuildContext context) async{
+    print("inside data");
+    prefs = await SharedPreferences.getInstance();
+    validate_number ? print("no nmb") :prefs.setString('phone', numberController.text);
+    validate_name ? print("no name") : prefs.setString('name', nameController.text);
+    validate_fatherName ? print("no nmb"):prefs.setString('fathername', fathernameController.text);
+    validate_adharnumber ? print("no adnb"): prefs.setString('adharnumber', adharnumberController.text);
+    print(pincodeController.text);
+    prefs.setString('postalcode', pincodeController.text);
+  }
   @override
   Widget build(BuildContext context) {
     TextStyle textStyle = Theme.of(context).textTheme.title;
@@ -51,6 +86,7 @@ class InputFormState extends State<InputForm> {
                         ? validate_name = true
                         : validate_name = false;
                   });
+                  
                 },
                 decoration: InputDecoration(
                     labelText:
@@ -96,6 +132,10 @@ class InputFormState extends State<InputForm> {
                         ? validate_number = true
                         : validate_number = false;
                   });
+                /* if (numberController.text.isNotEmpty) {
+                  
+                  addStringToSF(numberController.text);
+                } */
                 },
                 decoration: InputDecoration(
                     labelText: AppLocalizations.of(context).translate("Mobile Number"),
@@ -146,6 +186,30 @@ class InputFormState extends State<InputForm> {
               ),
             ),
             Padding(
+              padding: EdgeInsets.only(top: 20.0, left: 10.0, right: 10),
+              child: TextField(
+                controller: pincodeController,
+                style: textStyle,
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  debugPrint('Something changed in pincode');
+                  setState(() {
+                      pincodeController.text.isEmpty
+                        ? validate_pc = true
+                        : validate_pc = false;
+                  });
+                },
+                decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context).translate("Pincode"),
+                    labelStyle: textStyle,
+                    
+                    errorText:
+                        validate_pc ? 'Value can\'nt be empty' : null,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5.0))),
+              ),
+            ),
+            Padding(
               padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
               child: Row(
                 children: <Widget>[
@@ -158,9 +222,18 @@ class InputFormState extends State<InputForm> {
                         textScaleFactor: 1.5,
                       ),
                       onPressed: () {
+                        _getLocation().then((value) {
+                          print("##$value");
                         setState(() {
-                          debugPrint("Ok");
+                          postalcode = value;
                         });
+                        });
+                        storeData(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LandingScreen()),
+                        );
+                        
                       },
                     ),
                   ),

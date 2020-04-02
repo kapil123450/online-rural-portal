@@ -19,8 +19,9 @@ class VoiceHome extends StatefulWidget {
 
 class _VoiceHomeState extends State<VoiceHome> {
   SpeechRecognition _speechRecognition;
-  bool _isAvailable = false ;
-  bool _isListening = false ;
+  bool _isAvailable = false;
+  bool _isListening = false;
+
   String resultText = "";
 
   @override
@@ -29,30 +30,30 @@ class _VoiceHomeState extends State<VoiceHome> {
     initSpeechRecognizer();
   }
 
-  void initSpeechRecognizer(){
+  void initSpeechRecognizer() {
     _speechRecognition = SpeechRecognition();
 
     _speechRecognition.setAvailabilityHandler(
-          (bool result) => setState(() => _isAvailable = result),
+      (bool result) => setState(() => _isAvailable = result),
     );
 
     _speechRecognition.setRecognitionStartedHandler(
-          () => setState(() => _isListening = true),
+      () => setState(() => _isListening = true),
     );
 
     _speechRecognition.setRecognitionResultHandler(
-          (String speech) => setState(() => resultText = speech),
+      (String speech) => setState(() => resultText = speech),
     );
 
     _speechRecognition.setRecognitionCompleteHandler(
-          () => setState(() => _isListening = false),
+      () => setState(() => _isListening = false),
     );
 
     _speechRecognition.activate().then(
           (result) => setState(() => _isAvailable = result),
-    );
-
+        );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,10 +73,10 @@ class _VoiceHomeState extends State<VoiceHome> {
                     if (_isListening)
                       _speechRecognition.cancel().then(
                             (result) => setState(() {
-                          _isListening = result;
-                          resultText = "";
-                        }),
-                      );
+                                  _isListening = result;
+                                  resultText = "";
+                                }),
+                          );
                   },
                 ),
                 FloatingActionButton(
@@ -83,7 +84,7 @@ class _VoiceHomeState extends State<VoiceHome> {
                   onPressed: () {
                     if (_isAvailable && !_isListening)
                       _speechRecognition
-                          .listen(locale: "hi")
+                          .listen(locale: "en_US")
                           .then((result) => print('$result'));
                   },
                   backgroundColor: Colors.pink,
@@ -96,7 +97,7 @@ class _VoiceHomeState extends State<VoiceHome> {
                     if (_isListening)
                       _speechRecognition.stop().then(
                             (result) => setState(() => _isListening = result),
-                      );
+                          );
                   },
                 ),
               ],
