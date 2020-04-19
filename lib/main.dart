@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:flutter_app/screens/input_form.dart';
+import 'package:flutter_app/screens/reasonwise1.dart';
 import 'package:flutter_app/screens/viewprob.dart';
-import 'package:flutter_app/screens/reasonwise.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_app/screens/awareness.dart';
 import 'screens/AppLanguage.dart';
@@ -103,7 +104,7 @@ class HomeScreen extends StatelessWidget {
                 onTap: () {
                 Navigator.push(
                  context,
-                 MaterialPageRoute(builder: (context) => MyApp2()),
+                 MaterialPageRoute(builder: (context) => yourProblems()),
                   );
                 },
             child: Container(
@@ -143,7 +144,7 @@ class HomeScreen extends StatelessWidget {
                 onTap: () {
                 Navigator.push(
                  context,
-                 MaterialPageRoute(builder: (context) => MyApp3()),
+                 MaterialPageRoute(builder: (context) => reagonwise()),
                   );
                 },
             child: Container(

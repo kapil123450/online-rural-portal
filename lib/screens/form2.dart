@@ -168,25 +168,10 @@ Widget _decideImage(BuildContext context){
     String _phone = prefs.getString('phone') ;
     print(_phone);
     print(prefs.getString('postalcode'));
-    final QuerySnapshot result =
-        await Firestore.instance.collection('form').where('phone', isEqualTo: _phone).getDocuments();
-      final List<DocumentSnapshot> documents = result.documents;
-    if (documents.length!=0){
-    Firestore.instance.collection('form').document(_phone).updateData({
-          'Name': prefs.getString('name'),
-          'FatherName' : prefs.getString('fathername'),
-          'AdharNumber' : prefs.getString('adharnumber'),
-          'postalcode' : prefs.getString('postalcode'),
-          'photoUrl': url,
-          'videoUrl': url1,
-          'problemText': _problem.text,
-          'createdAt': DateTime.now().toString(),
-        });
-    }
-    else 
-    {
+    
       Firestore.instance.runTransaction((transaction) async {
-          await transaction.set(Firestore.instance.collection("form").document(_phone), {
+          await transaction.set(Firestore.instance.collection("form").document(), {
+            'phone':_phone,
             'Name': prefs.getString('name'),
             'FatherName' : prefs.getString('fathername'),
             'AdharNumber' : prefs.getString('adharnumber'),
@@ -197,7 +182,7 @@ Widget _decideImage(BuildContext context){
             'createdAt': DateTime.now().toString(),
           });
         });
-    }
+    
     
           print(url);
           //print(url1);
@@ -312,15 +297,12 @@ loading()
           Padding(
             padding: const EdgeInsets.all(16.0),
                    child:
-                    RaisedButton(onPressed: (){
+                    RaisedButton(onPressed: () async{
                       //loading();
                       setState(() {
                         isLoading = true;
                       });
-                      uploadPic(context);
-                      setState(() {
-                        isLoading =false;
-                      });
+                      await uploadPic(context);
                       //Fluttertoast.showToast(msg: "Upload success");
                       //Navigator.pop(context);
                     },child: Text(AppLocalizations.of(context).translate("Upload")),
