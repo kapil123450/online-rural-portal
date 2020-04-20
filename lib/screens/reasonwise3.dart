@@ -6,9 +6,11 @@ import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 
 class detailProblem extends StatelessWidget{
+  
   @override
   Widget build(BuildContext context) {
     final DocumentSnapshot document = ModalRoute.of(context).settings.arguments;
+    final Image _image = Image.network(document['photourl']);
     final String image = document['photourl'];
     final String videoFile = document['videourl'];
     debugPrint(image);
@@ -43,17 +45,20 @@ class detailProblem extends StatelessWidget{
           
           document['photourl']!=''?Text("Following is the image uploaded !\n",style: new TextStyle(height: 3.0, fontSize: 20.2, fontWeight: FontWeight.bold,)):Text(""),
           
-          Image.network(
-          document['photourl'],
-          //"https://cdn.pixabay.com/photo/2017/02/21/21/13/unicorn-2087450_1280.png",
-          fit: BoxFit.cover,
           
-          alignment: Alignment.center,
-        ),
+             Container(
+              
+              child: _image,
+
+            ),
+
+          
           
         document['videourl']!=''?Text('Following is the video uploaded !',style: new TextStyle(height: 3.0, fontSize: 20.2, fontWeight: FontWeight.bold,)):Text(""),
          Builder(
-          builder: (context) => videoPlayer(videoFile),
+          builder: (context) => videoPlayer(videoPlayerController: VideoPlayerController.network(
+              document['videourl'],
+            ),),
         ),
         
 
@@ -65,30 +70,38 @@ class detailProblem extends StatelessWidget{
 }
 
 class videoPlayer extends StatefulWidget{
-  final String videoFile; 
-  videoPlayer(this.videoFile);
+  final VideoPlayerController videoPlayerController;
+  final bool looping;
+  
+  videoPlayer({this.videoPlayerController,this.looping});
   @override 
   videoPlayerState createState() => videoPlayerState();
 }
 
 class videoPlayerState extends State<videoPlayer>{
-  VideoPlayerController _controller;
-  Future<void> _initializeVideoPlayerFuture;
-  String videoFile = '';
+  ChewieController _chewieController;
 
   @override
   void initState() {
-    videoFile = widget.videoFile;
-    debugPrint(videoFile);
-    _controller = VideoPlayerController.network(
-      
-      videoFile,
-    );
-    _initializeVideoPlayerFuture = _controller.initialize();
-
-    _controller.setLooping(true);
-
     super.initState();
+    // Wrapper on top of the videoPlayerController
+    _chewieController = ChewieController(
+      videoPlayerController: widget.videoPlayerController,
+      aspectRatio: 16 / 9,
+      // Prepare the video to be played and display the first frame
+      autoInitialize: true,
+      looping: widget.looping,
+      // Errors can occur for example when trying to play a video
+      // from a non-existent URL
+      errorBuilder: (context, errorMessage) {
+        return Center(
+          child: Text(
+            errorMessage,
+            style: TextStyle(color: Colors.white),
+          ),
+        );
+      },
+    );
   }
 
   
@@ -98,18 +111,18 @@ class videoPlayerState extends State<videoPlayer>{
             Padding(
             padding: const EdgeInsets.all(16.0),
             child: 
-            videoFile!=null&&mounted?Chewie(
-                          controller: ChewieController(
-                            videoPlayerController: _controller,
-                            aspectRatio: 3/2,
-                            autoPlay: true,
-                            //looping:true,
-                  ),
-                ):Text(""),
-              );
-                
-         
-        
+              Chewie(
+                controller: _chewieController,
+              ),
+            );  
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    // IMPORTANT to dispose of all the used resources
+    widget.videoPlayerController.dispose();
+    _chewieController.dispose();
   }
 
 }
