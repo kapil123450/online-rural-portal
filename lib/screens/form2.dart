@@ -190,6 +190,7 @@ Widget _decideImage(BuildContext context){
           print("Profile Picture uploaded");
           print("Profile video uploaded");
           Fluttertoast.showToast(msg: AppLocalizations.of(context).translate("Upload successful"));
+          
           //Scaffold.of(context).showSnackBar(SnackBar(content: Text('Profile Picture Uploaded')));
       
 
@@ -197,11 +198,12 @@ Widget _decideImage(BuildContext context){
 
 loading() 
 {
-  if (isLoading ){
+  print("inisde loading function");
+  
                   Center(
                     child: CircularProgressIndicator(),
                   );
-  }
+  
 }
   @override
   Widget build(BuildContext context) {
@@ -233,14 +235,13 @@ loading()
                         child: Icon(Icons.videocam,color: Colors.blue,size: 50.0,),
                       ):FittedBox(
                         fit: BoxFit.contain,
-                        child: mounted?Chewie(
-                          controller: ChewieController(
-                            videoPlayerController: VideoPlayerController.file(videoFile),
-                            aspectRatio: 3/2,
-                            autoPlay: true,
-                            //looping:true,
-                  ),
-                ):Container(),
+                        child: mounted?
+                        Builder(
+                            builder: (context) => videoPlayer(videoPlayerController: VideoPlayerController.file(
+                                videoFile,
+                              ),),
+                          )
+                :Container(),
               )
              ),
                       ],)
@@ -302,6 +303,7 @@ loading()
                       setState(() {
                         isLoading = true;
                       });
+                      loading();
                       await uploadPic(context);
                       //Fluttertoast.showToast(msg: "Upload success");
                       //Navigator.pop(context);
@@ -355,4 +357,63 @@ loading()
       ),
     );
 }
+@override
+void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+}
+
+class videoPlayer extends StatefulWidget{
+  final VideoPlayerController videoPlayerController;
+  final bool looping;
+  
+  videoPlayer({this.videoPlayerController,this.looping});
+  @override 
+  videoPlayerState createState() => videoPlayerState();
+}
+
+class videoPlayerState extends State<videoPlayer>{
+  ChewieController _chewieController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Wrapper on top of the videoPlayerController
+    _chewieController = ChewieController(
+      videoPlayerController: widget.videoPlayerController,
+      aspectRatio: 16 / 9,
+      // Prepare the video to be played and display the first frame
+      autoInitialize: true,
+      looping: widget.looping,
+      allowFullScreen: true,
+      // Errors can occur for example when trying to play a video
+      // from a non-existent URL
+      errorBuilder: (context, errorMessage) {
+        return Center(
+          child: Text(
+            errorMessage,
+            style: TextStyle(color: Colors.white),
+          ),
+        );
+      },
+    );
+  }
+
+  
+   @override
+  Widget build(BuildContext context) {
+    return new 
+      
+            Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: 
+              Chewie(
+                controller: _chewieController,
+              ),
+            );  
+  }
+
+  
+
 }

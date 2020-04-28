@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_app/screens/app_localizations.dart';
 import 'package:chewie/chewie.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:video_player/video_player.dart';
 
@@ -46,10 +47,14 @@ class detailProblem extends StatelessWidget{
           document['photourl']!=''?Text("Following is the image uploaded !\n",style: new TextStyle(height: 3.0, fontSize: 20.2, fontWeight: FontWeight.bold,)):Text(""),
           
           
-             Container(
-              
-              child: _image,
-
+            CachedNetworkImage(
+              imageUrl: document['photourl'],
+              placeholder: (context, url) =>Container(
+                child : Center(
+                  child : new CircularProgressIndicator(),
+                ),
+              ),
+              errorWidget: (context, url, error) => new Icon(Icons.error),
             ),
 
           
@@ -91,6 +96,7 @@ class videoPlayerState extends State<videoPlayer>{
       // Prepare the video to be played and display the first frame
       autoInitialize: true,
       looping: widget.looping,
+      allowFullScreen: true,
       // Errors can occur for example when trying to play a video
       // from a non-existent URL
       errorBuilder: (context, errorMessage) {
@@ -108,6 +114,7 @@ class videoPlayerState extends State<videoPlayer>{
    @override
   Widget build(BuildContext context) {
     return new 
+      
             Padding(
             padding: const EdgeInsets.all(16.0),
             child: 
@@ -117,12 +124,6 @@ class videoPlayerState extends State<videoPlayer>{
             );  
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    // IMPORTANT to dispose of all the used resources
-    widget.videoPlayerController.dispose();
-    _chewieController.dispose();
-  }
+  
 
 }
