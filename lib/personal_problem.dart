@@ -1,87 +1,172 @@
-
-import 'dart:math';
-import 'imag_video.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-//import 'package:flutter_widgets/plugins/firetop/storage/fire_storage_service.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-//void main() => runApp(MyApp());
+class Item {
+  const Item(this.name);
+  final String name;
+  //final Icon icon;
+}
+class DropdownScreen extends StatefulWidget {
+  State createState() =>  DropdownScreenState();
+}
+Item selectedUser = Item('None');
+String selectedbutton ;
+TextEditingController pincodeController= TextEditingController(text: "12345");
+class DropdownScreenState extends State<DropdownScreen> {
+  
+  List<Item> users = <Item>[
+    Item('Android'),
+    Item('Flutter'),
+    Item('ReactNative'),
+    Item('iOS'),
+  ];
 
-class MyApp3 extends StatelessWidget {
-  // This widget is the root of your application.
+  
+  
+  bool validate_pc = false;
+  SharedPreferences prefs;
+
+  storeData(BuildContext context) async{
+    print("inside data");
+    prefs = await SharedPreferences.getInstance();
+    //prefs.setString('field', selectedUser.name);
+    //prefs.setString('postalcode', pincodeController.text);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Firebase Storage Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    TextStyle textStyle = Theme.of(context).textTheme.title;
+    return  MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home:  Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF167F67),
+          title: Text(
+            'Search Skilled labour',
+            style: TextStyle(color: Colors.white),
+          ),
+          centerTitle: true,
+        ),
+        body: Padding(
+        padding: EdgeInsets.only(top: 200.0, left: 100.0, right: 100.0),
+        child: ListView(
+          children: <Widget>[
+           Center(
+              child:  DropdownButton<String>(
+            hint:  Text("Select item"),
+            value: selectedbutton,
+            onChanged: (String value) {
+              setState(() {
+                selectedbutton = value;
+              });
+            },
+                    items: [
+                  DropdownMenuItem<String>(
+                    value: "Android",
+                    child: Text(
+                      "Android",
+                    ),
+                  ),
+                  DropdownMenuItem<String>(
+                    value: "Flutter",
+                    child: Text(
+                      "Flutter",
+                    ),
+                  ),
+                  DropdownMenuItem<String>(
+                    value: "ReactNative",
+                    child: Text(
+                      "ReactNative",
+                    ),
+                  ),
+                  DropdownMenuItem<String>(
+                    value: "iOS",
+                    child: Text(
+                      "iOS",
+                    ),
+                  ),
+                ],
+          ),
+        ),
+        Center(
+          child: Padding(
+              padding: EdgeInsets.only(top: 20.0, left: 10.0, right: 10),
+              child: TextField(
+                controller: pincodeController,
+                style: textStyle,
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  debugPrint('Something changed in pincode');
+                  setState(() {
+                      pincodeController.text.isEmpty
+                        ? validate_pc = true
+                        : validate_pc = false;
+                  });
+                },
+                decoration: InputDecoration(
+                    labelText: "Pincode",
+                    labelStyle: textStyle,
+                    
+                    errorText:
+                        validate_pc ? 'Value can\'nt be empty' : null,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5.0))),
+              ),
+            ),
+        ),
+        Center(
+          child: Padding(
+              padding: EdgeInsets.only(top: 20.0, left: 10.0, right: 10),
+              child: Center(
+                child: RaisedButton(
+                      color: Theme.of(context).primaryColorDark,
+                      textColor: Theme.of(context).primaryColorLight,
+                      child: Text(
+                        'Submit',
+                        textScaleFactor: 1.5,
+                      ),
+                      onPressed: () {
+                      storeData(context);
+                       // Scaffold.of(context).showSnackBar(SnackBar(content: Text('Processing Data')));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Displaypeople()),
+                        );
+                        
+                      },
+                    ),
+              ),
+            ),
+        )
+          ],
+        ),
       ),
-      home: LoadFirbaseStorageImage(),
+      ),
     );
   }
 }
 
-final Color yellow = Color(0xfffbc31b);
-final Color orange = Color(0xfffb6900);
-//final String image1 = "images/broccoli.jpg";
-//final String image2 = "images/carrots.jpg";
 
-//String image = image1;
-
-class LoadFirbaseStorageImage extends StatefulWidget {
+class Displaypeople extends StatefulWidget {
   @override
   _LoadFirbaseStorageImageState createState() =>
       _LoadFirbaseStorageImageState();
 }
 
-class _LoadFirbaseStorageImageState extends State<LoadFirbaseStorageImage> {
-
-  String image = '';
-  SharedPreferences prefs;
-  String _phone = '';
- 
-  
-
-   _getImage() async {
-    
-     prefs = await SharedPreferences.getInstance();
-    _phone = prefs.getString('phone') ;
-    final QuerySnapshot result =
-        await Firestore.instance.collection('form').where('phone', isEqualTo: _phone).getDocuments();
-      final List<DocumentSnapshot> documents = result.documents;
-      setState(() {
-        image = documents[0]['photoUrl'];
-      });
-     
-     //fit: BoxFit.scaleDown,
-  }
-
- Widget _decideImage(){
-   if(image == ''){
-     return Center(
-       child: Text("No Image Selected"),
-     );
-     
-   }else
-   {
-   return  Image.network(image,width:100,height:100);
-   } 
- }
-
-@override
+class _LoadFirbaseStorageImageState extends State<Displaypeople> {
+ @override
   Widget build(BuildContext context) {
     return new Scaffold(
     appBar: new AppBar(
-      title: new Text("All problems Region wise"),
+      backgroundColor: const Color(0xFF167F67),
+      title: new Text("Region wise Labour list"),
       centerTitle: true,
     ),
     
     body: new StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance.collection("form").orderBy('Name').snapshots(),
+      stream: Firestore.instance.collection("skilled_labour").where( 'field', isEqualTo: selectedbutton  ).snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (!snapshot.hasData) return const Text('Connecting...');
         final int cardLength = snapshot.data.documents.length;
@@ -94,16 +179,15 @@ class _LoadFirbaseStorageImageState extends State<LoadFirbaseStorageImage> {
     ),
     );
   }
-
+  
 }
-
-
 
 
 Widget fullimg(BuildContext context,DocumentSnapshot document)
   {
      return new Scaffold(
        appBar: AppBar(
+         backgroundColor: const Color(0xFF167F67),
         centerTitle: true,
         title: Text("Your Pic of problem "),
         ),
@@ -137,13 +221,9 @@ Widget fullimg(BuildContext context,DocumentSnapshot document)
 
 Widget buildItem(BuildContext context, DocumentSnapshot document) {
       return Container(
-        color: Colors.blueAccent,
+        
         child: new InkWell(
            onTap: () {
-                  Navigator.push(
-                 context,
-                 MaterialPageRoute(builder: (context) => VideoPlayerScreen ( document: document)),
-                  );
                 },
         
           child: FlatButton(
@@ -196,7 +276,7 @@ Widget buildItem(BuildContext context, DocumentSnapshot document) {
                       ),
                       Container(
                         child: Text(
-                          'Problems: ${document['problem_text']}',
+                          'Field of work: ${document['field']}',
                           style: TextStyle(color: Colors.grey),
                         ),
                         alignment: Alignment.centerLeft,
